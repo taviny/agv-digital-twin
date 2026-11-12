@@ -1,4 +1,3 @@
-
 import math
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -12,6 +11,10 @@ agv_y = 0.0
 path_x = [agv_x]
 path_y = [agv_y]
 path_target = [0]
+
+# Luu tong quang duong va thoi gian
+total_distance = [0.0]
+elapsed_time = [0.0]
 
 # Cac diem AGV can di qua
 waypoints = [
@@ -49,10 +52,15 @@ for i, target in enumerate(waypoints):
             path_x.append(agv_x)
             path_y.append(agv_y)
             path_target.append(i + 1)
+            total_distance.append(total_distance[-1])
+            elapsed_time.append(elapsed_time[-1])
             break
 
         # Quang duong di duoc trong mot buoc
         step_distance = speed * time_step
+
+        old_x = agv_x
+        old_y = agv_y
 
         # Cap nhat vi tri AGV
         if distance <= step_distance:
@@ -67,11 +75,26 @@ for i, target in enumerate(waypoints):
         path_y.append(agv_y)
         path_target.append(i + 1)
 
+        #Tinh quang duong AGV vua di duoc
+        moved_distance = math.sqrt(
+            (agv_x - old_x)**2 + (agv_y - old_y)**2
+        )
+
+        total_distance.append(
+            total_distance[-1] + moved_distance
+        )
+
+        elapsed_time.append(
+            elapsed_time[-1] + moved_distance / speed
+        )
+
         print(f"Vi tri AGV: ({agv_x:.2f}, {agv_y:.2f})")
 
     print(f"Da den waypoint {i + 1}")
 
 print("\nAGV da hoan thanh hanh trinh!")
+print(f"Tong quang duong: {total_distance[-1]:.2f} m")
+print(f"Thoi gian di chuyen: {elapsed_time[-1]:.2f} s")
 
 # Tao giao dien mo phong 2D
 fig, ax = plt.subplots(figsize=(9, 6))
@@ -163,9 +186,12 @@ def update(frame):
     else:
         status = f"Dang den waypoint {current_waypoint}"
 
+    # Simulation Info
     status_text.set_text(
         f"AGV Position: ({x:.2f}, {y:.2f}) m\n"
-        f"Status: {status}"
+        f"Status: {status}\n"
+        f"Total Distance: {total_distance[frame]:.2f} m\n"
+        f"Elapsed Time: {elapsed_time[frame]:.1f} s"
     )
 
     return path_line, agv_arrow, status_text
