@@ -1,5 +1,6 @@
 import math
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 # Vi tri ban dau cua AGV
 agv_x = 0.0
@@ -41,6 +42,9 @@ for i, target in enumerate(waypoints):
         if distance < 0.05:
             agv_x = target_x
             agv_y = target_y
+
+            path_x.append(agv_x)
+            path_y.append(agv_y)
             break
 
         # Quang duong di duoc trong mot buoc
@@ -64,20 +68,23 @@ for i, target in enumerate(waypoints):
 
 print("\nAGV da hoan thanh hanh trinh!")
 
-# Hien thi duong di cua AGV
-plt.figure(figsize=(8, 6))
+# Tao giao dien mo phong 2D
+fig, ax = plt.subplots(figsize=(8, 6))
 
-# Ve duong di
-plt.plot(path_x, path_y, 'b-', label="AGV Path")
+# Cau hinh khu vuc hien thi
+ax.set_xlim(-1, 6)
+ax.set_ylim(-1, 4)
+ax.set_xlabel("X (m)")
+ax.set_ylabel("Y (m)")
+ax.set_title("AGV Movement Simulation")
+ax.grid(True)
+ax.set_aspect("equal")
 
-# Danh dau vi tri ban dau
-plt.scatter(0, 0, color='green', s=100, label="Start")
-
-# Danh dau cac waypoint
+# Hien thi cac waypoint
 waypoint_x = [point[0] for point in waypoints]
 waypoint_y = [point[1] for point in waypoints]
 
-plt.scatter(
+ax.scatter(
     waypoint_x,
     waypoint_y,
     color='red',
@@ -86,14 +93,36 @@ plt.scatter(
     label="Waypoints"
 )
 
-# Danh dau vi tri ket thuc
-plt.scatter(agv_x, agv_y, color='orange', s=100, label="Final Position")
+# Hien thi vi tri bat dau
+ax.scatter(0, 0, color='green', s=100, label="Start")
 
-plt.xlabel("X (m)")
-plt.ylabel("Y (m)")
-plt.title("AGV Movement Simulation")
-plt.grid(True)
-plt.legend()
-plt.axis("equal")
+# Tao duong di va ky hieu AGV
+path_line, = ax.plot([], [], 'b-', label="AGV Path")
+agv_marker, = ax.plot([], [], 'o', color='orange',
+                      markersize=10, label="AGV")
+
+ax.legend()
+
+# Ham cap nhat tung khung hinh
+def update(frame):
+    path_line.set_data(path_x[:frame + 1], path_y[:frame + 1])
+
+    agv_marker.set_data(
+        [path_x[frame]],
+        [path_y[frame]]
+    )
+
+    return path_line, agv_marker
+
+
+# Tao hoat anh
+ani = FuncAnimation(
+    fig,
+    update,
+    frames=len(path_x),
+    interval=300,
+    repeat=False,
+    blit=True
+)
 
 plt.show()
