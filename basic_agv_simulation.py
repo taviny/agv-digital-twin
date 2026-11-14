@@ -228,6 +228,26 @@ def lap_hanh_trinh(target):
     return True
 
 
+# tinh quang duong con lai den dich
+def tinh_quang_duong_con_lai():
+    if mission_completed or not planned_path:
+        return 0.0
+
+    remaining = 0.0
+    current_x = agv_x
+    current_y = agv_y
+
+    for i in range(route_index, len(planned_path)):
+        next_x, next_y = planned_path[i]
+        remaining += math.sqrt(
+            (next_x - current_x)**2 + (next_y - current_y)**2
+        )
+        current_x = next_x
+        current_y = next_y
+
+    return remaining
+
+
 lap_hanh_trinh(default_target)
 
 # Tao giao dien mo phong 2D
@@ -407,12 +427,15 @@ def update(frame):
     else:
         status = "Dang di chuyen"
 
+    remaining_distance = tinh_quang_duong_con_lai()
+
     status_text.set_text(
         f"AGV Position: ({agv_x:.2f}, {agv_y:.2f}) m\n"
         f"Status: {status}\n"
         f"Destination: ({current_target[0]:.2f}, {current_target[1]:.2f}) m\n"
         f"Speed: {speed:.1f} m/s\n"
         f"Total Distance: {total_distance:.2f} m\n"
+        f"Remaining Distance: {remaining_distance:.2f} m\n"
         f"Elapsed Time: {elapsed_time:.1f} s\n"
         f"Route points: {len(planned_path)}\n"
         f"Message: {message}"
