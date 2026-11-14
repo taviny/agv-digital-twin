@@ -31,10 +31,10 @@ no_go_zones = [
     (5.5, 3.5, 1.0, 2.5),
     (7.5, 0.5, 1.0, 2.5)
 ]
-
-robot_radius = 0.2
-safety_margin = 0.1
-grid_size = 0.25
+#kich thuoc xe 400x550x300 mm
+robot_width = 0.4
+robot_length = 0.55
+robot_height = 0.3
 
 default_target = (9.0, 6.0)
 current_target = default_target
